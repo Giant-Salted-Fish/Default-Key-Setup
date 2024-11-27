@@ -1,0 +1,3 @@
+dks.gui.config_title=默认按键配置
+dks.gui.warning_msg=当前按键配置即将被保存为默认按键配置，您确定要继续吗？
+dks.gui.confirm=确定
