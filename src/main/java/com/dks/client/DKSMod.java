@@ -6,6 +6,7 @@ import com.kbp.client.api.IPatchedKeyBinding;
 import com.kbp.client.impl.IKeyBindingImpl;
 import com.mojang.realmsclient.util.Pair;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.settings.KeyModifier;
@@ -17,6 +18,7 @@ import net.minecraftforge.fml.client.event.ConfigChangedEvent.PostConfigChangedE
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -29,7 +31,7 @@ import java.util.stream.Collectors;
 
 @Mod(
 	modid = DKSMod.MODID,
-	version = "1.12.2-1.0.0.0",
+	version = "1.0.0.1",
 	clientSideOnly = true,
 	updateJSON = "https://raw.githubusercontent.com/Giant-Salted-Fish/Default-Key-Setup/1.12.2/update.json",
 	acceptedMinecraftVersions = "[1.12,1.13)",
@@ -155,10 +157,10 @@ public final class DKSMod
 			final String value = data.get( kb.getKeyDescription() );
 			if ( value != null )
 			{
-				final int idx = value.indexOf( ':' );
-				final int key_code = Integer.parseInt( value.substring( 0, idx ) );
+				final String[] split = value.split( ":" );
+				final int key_code = Integer.parseInt( split[ 0 ] );
 				KeyBindingAccess._setKeyCodeDefault( kb, key_code );
-				setup_rest.accept( kb, value.substring( idx + 1 ) );
+				setup_rest.accept( kb, split.length > 1 ? split[ 1 ] : "" );
 			}
 		}
 	}
@@ -183,7 +185,7 @@ public final class DKSMod
 				__applyDefaultKeySetup();
 				
 				final Minecraft mc = Minecraft.getMinecraft();
-				final File file = new File( mc.gameDir, "options.txt" );
+				final File file = ObfuscationReflectionHelper.getPrivateValue( GameSettings.class, mc.gameSettings, "field_74354_ai" );
 				if ( !file.exists() )
 				{
 					Arrays.stream( mc.gameSettings.keyBindings ).forEachOrdered( KeyBinding::setToDefault );

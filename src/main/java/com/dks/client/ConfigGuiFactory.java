@@ -36,7 +36,7 @@ public final class ConfigGuiFactory implements IModGuiFactory
 	{
 		final String title = "dks.gui.config_title";
 		final TextComponentTranslation message = new TextComponentTranslation( "dks.gui.warning_msg" );
-		final String btn_label = "gui.cancel";
+		final String btn_label = "gui.no";
 		return new GuiMessageDialog( parent, title, message, btn_label ) {
 			@Override
 			public void initGui()
@@ -47,8 +47,8 @@ public final class ConfigGuiFactory implements IModGuiFactory
 				confirm_btn.x = this.width / 2 - 155;
 				confirm_btn.width = 150;
 				
-				final GuiButton cancel_btn = new GuiButton( 1, this.width / 2 + 5, confirm_btn.y, 150, 20, I18n.format( "dks.gui.confirm" ) );
-				this.buttonList.add( cancel_btn );
+				final GuiButton yes_btn = new GuiButton( 1, this.width / 2 + 5, confirm_btn.y, 150, 20, I18n.format( "gui.yes" ) );
+				this.buttonList.add( yes_btn );
 			}
 			
 			@Override

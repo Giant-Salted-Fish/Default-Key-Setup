@@ -5,7 +5,7 @@ plugins {
 	id 'wtf.gofancy.fancygradle' version '1.1.+'
 }
 
-version = '1.12.2-1.0.0.0'
+version = '1.0.0.1'
 group = 'com.dks'  // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'Default Key Setup'
 
@@ -43,6 +43,16 @@ minecraft {
 			// Recommended logging level for the console
 			property 'forge.logging.console.level', 'debug'
 		}
+	}
+}
+
+processResources {
+	// This will ensure that this task is redone when the versions change.
+	inputs.property 'version', project.version
+	
+	// Replace stuff in mcmod.info, nothing else
+	filesMatching('mcmod.info') {
+		expand 'version': project.version
 	}
 }
 

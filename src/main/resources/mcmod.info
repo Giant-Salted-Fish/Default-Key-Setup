@@ -2,8 +2,9 @@
 	"modid": "default_key_setup",
 	"name": "Default Key Setup",
 	"description": "Allow player to customize their default key setup.",
-	"url": "https://www.mcmod.cn/class/471963.html",
+	"url": "https://www.mcmod.cn/class/17262.html",
 	"logoFile": "logo.png",
+	"version": "${version}",
 	"authorList": [ "Giant_Salted_Fish" ],
 	"credits": "All code contributors."
 } ]
