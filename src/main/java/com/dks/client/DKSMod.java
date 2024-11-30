@@ -98,17 +98,6 @@ public final class DKSMod
 	
 	private static void __applyDefaultKeySetup()
 	{
-		final Map< String, String > data = (
-			Arrays.stream( DKSModConfig.default_key_setup )
-			.map( s -> {
-				final int idx = s.indexOf( '=' );
-				final String name = s.substring( 0, idx );
-				final String value = s.substring( idx + 1 );
-				return Pair.of( name, value );
-			} )
-			.collect( Collectors.toMap( Pair::first, Pair::second ) )
-		);
-		
 		final boolean has_kbp_mod = Loader.isModLoaded( "key_binding_patch" );
 		final int case_id = ( has_kbp_mod ? 0b10 : 0b00 ) | ( DKSModConfig.is_kbp_setup ? 0b01 : 0b00 );
 		final BiConsumer< KeyBinding, String > setup_rest;
@@ -156,6 +145,17 @@ public final class DKSMod
 		default:
 			throw new AssertionError( "Invalid case_id: " + case_id );
 		}
+		
+		final Map< String, String > data = (
+			Arrays.stream( DKSModConfig.default_key_setup )
+			.map( s -> {
+				final int idx = s.indexOf( '=' );
+				final String name = s.substring( 0, idx );
+				final String value = s.substring( idx + 1 );
+				return Pair.of( name, value );
+			} )
+			.collect( Collectors.toMap( Pair::first, Pair::second ) )
+		);
 		
 		final Minecraft mc = Minecraft.getMinecraft();
 		for ( KeyBinding kb : mc.gameSettings.keyBindings )
