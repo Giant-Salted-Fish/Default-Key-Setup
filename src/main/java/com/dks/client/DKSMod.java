@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 
 @Mod(
 	modid = DKSMod.MODID,
-	version = "1.0.0.1",
+	version = "1.0.0.2",
 	clientSideOnly = true,
 	updateJSON = "https://raw.githubusercontent.com/Giant-Salted-Fish/Default-Key-Setup/1.12.2/update.json",
 	acceptedMinecraftVersions = "[1.12,1.13)",
@@ -46,7 +46,6 @@ public final class DKSMod
 	// Internal implementations that should not be accessed by other mods.
 	static void _saveDefaultKeySetup()
 	{
-		final Minecraft mc = Minecraft.getMinecraft();
 		final Function< KeyBinding, String > to_save_str;
 		final boolean has_kbp_mod = Loader.isModLoaded( "key_binding_patch" );
 		if ( has_kbp_mod )
@@ -73,6 +72,7 @@ public final class DKSMod
 			};
 		}
 		
+		final Minecraft mc = Minecraft.getMinecraft();
 		DKSModConfig.default_key_setup = (
 			Arrays.stream( mc.gameSettings.keyBindings )
 			.map( to_save_str )
@@ -80,6 +80,12 @@ public final class DKSMod
 		);
 		DKSModConfig.is_kbp_setup = has_kbp_mod;
 		
+		__fireConfigChangeEvt();
+	}
+	
+	private static void __fireConfigChangeEvt()
+	{
+		final Minecraft mc = Minecraft.getMinecraft();
 		final boolean is_world_running = mc.world != null;
 		final OnConfigChangedEvent evt = new OnConfigChangedEvent( MODID, null, is_world_running, false );
 		MinecraftForge.EVENT_BUS.post( evt );
@@ -182,13 +188,27 @@ public final class DKSMod
 			@SubscribeEvent
 			void onOpenGui( GuiOpenEvent evt )
 			{
-				__applyDefaultKeySetup();
-				
-				final Minecraft mc = Minecraft.getMinecraft();
-				final File file = ObfuscationReflectionHelper.getPrivateValue( GameSettings.class, mc.gameSettings, "field_74354_ai" );
-				if ( !file.exists() )
+				final boolean should_reset_kb;
+				if ( DKSModConfig.force_key_reset )
 				{
-					Arrays.stream( mc.gameSettings.keyBindings ).forEachOrdered( KeyBinding::setToDefault );
+					DKSModConfig.force_key_reset = false;
+					__fireConfigChangeEvt();
+					should_reset_kb = true;
+				}
+				else
+				{
+					__applyDefaultKeySetup();
+					
+					final Minecraft mc = Minecraft.getMinecraft();
+					final File file = ObfuscationReflectionHelper.getPrivateValue( GameSettings.class, mc.gameSettings, "field_74354_ai" );
+					should_reset_kb = !file.exists();
+				}
+				
+				if ( should_reset_kb )
+				{
+					final Minecraft mc = Minecraft.getMinecraft();
+					final GameSettings settings = mc.gameSettings;
+					Arrays.stream( settings.keyBindings ).forEachOrdered( KeyBinding::setToDefault );
 					KeyBinding.resetKeyBindingArrayAndHash();
 				}
 				
