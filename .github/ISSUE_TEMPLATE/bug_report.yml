@@ -1,0 +1,64 @@
+name: Bug Report
+description: File a bug report.
+labels: ["bug", "unverified"]
+body:
+  - type: checkboxes
+    attributes:
+      label: Check List
+      options:
+        - label: I have checked there is no duplicate issue
+          required: true
+        - label: This bug occurs when DKS is used alone (high priority to fix)
+        - label: This bug only occurs after another mod is added
+  - type: dropdown
+    attributes:
+      label: Minecraft Version
+      options:
+        - 1.12.2
+      default: 0
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Forge Version
+      description: You should be able to find this in your MC launcher
+      placeholder: Input version of the Forge that you are using
+      value: 14.23.5.2860
+    validations:
+      required: true
+  - type: dropdown
+    attributes:
+      label: DKS Version
+      description: Only problems for latest or recommended version will be accepted
+      options:
+        - 1.0.0.2
+      default: 0
+    validations:
+      required: true
+  - type: checkboxes
+    validations:
+      required: true
+    attributes:
+      label: OS
+      description: You may select more than one
+      options:
+        - label: Windows
+        - label: Linux
+        - label: MacOS
+        - label: Other
+  - type: textarea
+    attributes:
+      label: Mod List (Optional)
+      placeholder: InvMove-0.4.6, etc...
+  - type: textarea
+    attributes:
+      label: Describe the bug
+      placeholder: A clear and concise description of what the bug is. If applicable, add screenshots and game log to help explain your problem. If you have any leads, include them here. (eg. if the issue occurs only on multiplayer or only in a certain inventory type)
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: How to Reproduce
+      placeholder: Describe how this issue can be reproduced.
+    validations:
+      required: true
