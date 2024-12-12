@@ -1,0 +1,30 @@
+modLoader="javafml"
+loaderVersion="[36,)"
+license="All rights reserved"
+issueTrackerURL="https://github.com/Giant-Salted-Fish/Default-Key-Setup/issues"
+showAsResourcePack=false
+
+[[mods]]
+	modId="default_key_setup"
+	version="${file.jarVersion}"
+	displayName="Default Key Setup"
+	updateJSONURL="https://raw.githubusercontent.com/Giant-Salted-Fish/Default-Key-Setup/refs/heads/1.12.2/update.json"
+	displayURL="https://www.mcmod.cn/class/17262.html"
+	logoFile="logo.png"
+	credits="All code contributors"
+	authors="Giant_Salted_Fish"
+	description="Allow player to customize their default key setup."
+
+[[dependencies.default_key_setup]]
+	modId="forge"
+	mandatory=true
+	versionRange="[36,)"
+	ordering="NONE"
+	side="CLIENT"
+
+[[dependencies.default_key_setup]]
+	modId="minecraft"
+	mandatory=true
+	versionRange="[1.16.5,1.17)"
+	ordering="NONE"
+	side="CLIENT"
