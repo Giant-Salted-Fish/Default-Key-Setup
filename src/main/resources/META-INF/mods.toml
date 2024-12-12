@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[36,)"
+loaderVersion="[40,)"
 license="All rights reserved"
 issueTrackerURL="https://github.com/Giant-Salted-Fish/Default-Key-Setup/issues"
 showAsResourcePack=false
@@ -18,13 +18,13 @@ showAsResourcePack=false
 [[dependencies.default_key_setup]]
 	modId="forge"
 	mandatory=true
-	versionRange="[36,)"
+	versionRange="[40,)"
 	ordering="NONE"
 	side="CLIENT"
 
 [[dependencies.default_key_setup]]
 	modId="minecraft"
 	mandatory=true
-	versionRange="[1.16.5,1.17)"
+	versionRange="[1.18.2,1.19)"
 	ordering="NONE"
 	side="CLIENT"

@@ -19,7 +19,7 @@ final class DKSModConfig
 	
 	static
 	{
-		final Builder builder = new Builder();
+		final var builder = new Builder();
 		FORCE_KEY_RESET = (
 			builder.comment(
 				"DKS mod relies on the existence of the options.txt file to detect whether it is a fresh",
