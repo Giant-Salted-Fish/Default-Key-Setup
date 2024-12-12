@@ -1,17 +1,13 @@
 package com.dks.client;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.client.IModGuiFactory;
-import net.minecraftforge.fml.client.config.GuiMessageDialog;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import javax.annotation.Nonnull;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;
 
@@ -34,32 +30,17 @@ public final class ConfigGuiFactory implements IModGuiFactory
 	@Override
 	public GuiScreen createConfigGui( GuiScreen parent )
 	{
-		final String title = "dks.gui.config_title";
-		final TextComponentTranslation message = new TextComponentTranslation( "dks.gui.warning_msg" );
-		final String btn_label = "gui.no";
-		return new GuiMessageDialog( parent, title, message, btn_label ) {
-			@Override
-			public void initGui()
-			{
-				super.initGui();
-				
-				final GuiButton confirm_btn = this.buttonList.get( 0 );
-				confirm_btn.x = this.width / 2 - 155;
-				confirm_btn.width = 150;
-				
-				final GuiButton yes_btn = new GuiButton( 1, this.width / 2 + 5, confirm_btn.y, 150, 20, I18n.format( "gui.yes" ) );
-				this.buttonList.add( yes_btn );
-			}
-			
-			@Override
-			protected void actionPerformed( @Nonnull GuiButton button ) throws IOException
-			{
-				if ( button.id == 1 ) {
+		return new GuiYesNo(
+			( result, id ) -> {
+				if ( result ) {
 					DKSMod._saveDefaultKeySetup();
 				}
-				super.actionPerformed( this.buttonList.get( 0 ) );
-			}
-		};
+				parent.mc.displayGuiScreen( parent );
+			},
+			I18n.format( "dks.gui.warning_title" ),
+			I18n.format( "dks.gui.warning_msg" ),
+			-1
+		);
 	}
 	
 	@Override
