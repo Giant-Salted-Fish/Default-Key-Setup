@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 
 @Mod(
 	modid = DKSMod.MODID,
-	version = "1.0.0.2",
+	version = "1.0.0.3",
 	clientSideOnly = true,
 	updateJSON = "https://raw.githubusercontent.com/Giant-Salted-Fish/Default-Key-Setup/1.12.2/update.json",
 	acceptedMinecraftVersions = "[1.12,1.13)",
