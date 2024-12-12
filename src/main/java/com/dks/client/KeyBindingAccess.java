@@ -2,22 +2,23 @@ package com.dks.client;
 
 import com.google.common.collect.ImmutableSet;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.client.util.InputMappings.Input;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.settings.KeyModifier;
-import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.lang.reflect.Field;
 
-@SideOnly( Side.CLIENT )
+@OnlyIn( Dist.CLIENT )
 final class KeyBindingAccess
 {
-	private static final Field KeyBinding$keyCodeDefault = ObfuscationReflectionHelper.findField( KeyBinding.class, "field_151472_e" );
-	static void _setKeyCodeDefault( KeyBinding kb, int key_code )
+	private static final Field KeyBinding$defaultKey = ObfuscationReflectionHelper.findField( KeyBinding.class, "field_151472_e" );
+	static void _setDefaultKey( KeyBinding kb, Input key )
 	{
 		try {
-			KeyBinding$keyCodeDefault.set( kb, key_code );
+			KeyBinding$defaultKey.set( kb, key );
 		}
 		catch ( IllegalAccessException e ) {
 			throw new RuntimeException( e );
@@ -38,14 +39,14 @@ final class KeyBindingAccess
 	private static final Field KeyBinding$default_cmb_keys;
 	static
 	{
-		if ( Loader.isModLoaded( "key_binding_patch" ) ) {
+		if ( ModList.get().isLoaded( "key_binding_patch" ) ) {
 			KeyBinding$default_cmb_keys = ObfuscationReflectionHelper.findField( KeyBinding.class, "default_cmb_keys" );
 		}
 		else {
 			KeyBinding$default_cmb_keys = null;
 		}
 	}
-	static void _setDefaultCmbKeys( KeyBinding kb, ImmutableSet< Integer > cmb_keys )
+	static void _setDefaultCmbKeys( KeyBinding kb, ImmutableSet< Input > cmb_keys )
 	{
 		try {
 			KeyBinding$default_cmb_keys.set( kb, cmb_keys );
