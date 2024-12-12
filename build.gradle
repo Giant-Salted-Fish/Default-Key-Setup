@@ -26,9 +26,7 @@ minecraft {
 	// Default run configurations.
 	// These can be tweaked, removed, or duplicated as needed.
 	runs {
-		client {
-			workingDirectory project.file('run')
-
+		configureEach {
 			// Recommended logging data for a userdev environment
 			property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
 
@@ -36,12 +34,11 @@ minecraft {
 			property 'forge.logging.console.level', 'debug'
 		}
 
-		server {
-			// Recommended logging data for a userdev environment
-			property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+		client {
+			workingDirectory project.file('run')
+		}
 
-			// Recommended logging level for the console
-			property 'forge.logging.console.level', 'debug'
+		server {
 		}
 	}
 }
