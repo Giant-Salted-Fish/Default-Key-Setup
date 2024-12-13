@@ -9,9 +9,9 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.screens.ConfirmScreen;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraftforge.client.ConfigGuiHandler.ConfigGuiFactory;
-import net.minecraftforge.client.event.ScreenOpenEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraftforge.client.ConfigScreenHandler.ConfigScreenFactory;
+import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.client.extensions.IForgeKeyMapping;
 import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.common.MinecraftForge;
@@ -138,8 +138,8 @@ public final class DKSMod
 		// Setup mod config settings.
 		load_ctx.registerConfig( Type.CLIENT, DKSModConfig.CONFIG_SPEC );
 		load_ctx.registerExtensionPoint(
-			ConfigGuiFactory.class,
-			() -> new ConfigGuiFactory( ( mc, screen ) -> new ConfirmScreen(
+			ConfigScreenFactory.class,
+			() -> new ConfigScreenFactory( ( mc, screen ) -> new ConfirmScreen(
 				result -> {
 					if ( result )
 					{
@@ -148,14 +148,14 @@ public final class DKSMod
 					}
 					mc.setScreen( screen );
 				},
-				new TranslatableComponent( "dks.gui.warning_title" ),
-				new TranslatableComponent( "dks.gui.warning_msg" )
+				Component.translatable( "dks.gui.warning_title" ),
+				Component.translatable( "dks.gui.warning_msg" )
 			) )
 		);
 		
 		MinecraftForge.EVENT_BUS.register( new Object() {
 			@SubscribeEvent
-			void onOpenGui( ScreenOpenEvent evt )
+			void onOpenGui( ScreenEvent.Opening evt )
 			{
 				final boolean should_reset_km;
 				if ( DKSModConfig.FORCE_KEY_RESET.get() )
@@ -167,7 +167,7 @@ public final class DKSMod
 				else
 				{
 					final var mc = Minecraft.getInstance();
-					final File file = ObfuscationReflectionHelper.getPrivateValue( Options.class, mc.options, "f_92110_" );
+					final File file = ObfuscationReflectionHelper.getPrivateValue( Options.class, mc.options, "f_92110_");
 					should_reset_km = !Objects.requireNonNull( file ).exists();
 				}
 				
