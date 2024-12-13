@@ -7,7 +7,6 @@ import net.minecraftforge.common.ForgeConfigSpec.BooleanValue;
 import net.minecraftforge.common.ForgeConfigSpec.Builder;
 import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
 
-import java.util.Collections;
 import java.util.List;
 
 @OnlyIn( Dist.CLIENT )
@@ -35,7 +34,7 @@ final class DKSModConfig
 				"Current default setup for key bindings. It will be applied if option.txt does not exist.",
 				"DO NOT TRY TO MODIFY THIS MANUALLY! USE THE CONFIG GUI IN GAME INSTEAD!"
 			)
-			.defineList( "default_key_setup", Collections.emptyList(), String.class::isInstance )
+			.defineList( "default_key_setup", List.of(), String.class::isInstance )
 		);
 		
 		CONFIG_SPEC = builder.build();

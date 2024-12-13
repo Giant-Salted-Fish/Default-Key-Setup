@@ -40,7 +40,7 @@ public final class DKSMod
 		final var mc = Minecraft.getInstance();
 		DKSModConfig.DEFAULT_KEY_SETUP.set(
 			Arrays.stream( mc.options.keyMappings )
-			.map( kb -> String.format( "%s=%s", kb.getName(), kb.saveString() ) )
+			.map( km -> String.format( "%s=%s", km.getName(), km.saveString() ) )
 			.toList()
 		);
 		DKSModConfig.DEFAULT_KEY_SETUP.save();
@@ -83,10 +83,10 @@ public final class DKSMod
 		else
 		{
 			// KBP mod is not installed, so can not use IKeyMappingImpl#toModifier(...).
-			setup_rest = ( kb, split ) -> {
+			setup_rest = ( km, split ) -> {
 				final String value = split.length > 1 ? split[ 1 ] : "";
 				final var modifier = KeyModifier.valueFromString( value );
-				KeyMappingAccess._setKeyModifierDefault( kb, modifier );
+				KeyMappingAccess._setKeyModifierDefault( km, modifier );
 			};
 		}
 		
