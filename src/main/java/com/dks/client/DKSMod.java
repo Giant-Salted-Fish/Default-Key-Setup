@@ -26,12 +26,11 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.function.BiConsumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Mod(
 	modid = DKSMod.MODID,
-	version = "1.0.0.3",
+	version = "1.0.0.5",
 	clientSideOnly = true,
 	updateJSON = "https://raw.githubusercontent.com/Giant-Salted-Fish/Default-Key-Setup/1.12.2/update.json",
 	acceptedMinecraftVersions = "[1.12,1.13)",
@@ -46,36 +45,39 @@ public final class DKSMod
 	// Internal implementations that should not be accessed by other mods.
 	static void _saveDefaultKeySetup()
 	{
-		final Function< KeyBinding, String > to_save_str;
+		final BiConsumer< KeyBinding, StringBuilder > append_rest;
 		final boolean has_kbp_mod = Loader.isModLoaded( "key_binding_patch" );
 		if ( has_kbp_mod )
 		{
-			to_save_str = kb -> {
+			append_rest = ( kb, builder ) -> {
 				final IPatchedKeyBinding ikb = KBPMod.getPatched( kb );
-				final String name = kb.getKeyDescription();
-				final String key = Integer.toString( kb.getKeyCode() );
-				final String cmb_keys = (
+				builder.append( kb.getKeyCode() );
+				builder.append( ':' );
+				builder.append(
 					ikb.getCmbKeys().stream()
 					.map( Object::toString )
 					.collect( Collectors.joining( "+" ) )
 				);
-				return String.format( "%s=%s:%s", name, key, cmb_keys );
 			};
 		}
 		else
 		{
-			to_save_str = kb -> {
-				final String name = kb.getKeyDescription();
-				final String key = Integer.toString( kb.getKeyCode() );
-				final String modifier = kb.getKeyModifier().toString();
-				return String.format( "%s=%s:%s", name, key, modifier );
+			append_rest = ( kb, builder ) -> {
+				builder.append( kb.getKeyCode() );
+				builder.append( ':' );
+				builder.append( kb.getKeyModifier() );
 			};
 		}
 		
 		final Minecraft mc = Minecraft.getMinecraft();
 		DKSModConfig.default_key_setup = (
 			Arrays.stream( mc.gameSettings.keyBindings )
-			.map( to_save_str )
+			.map( kb -> {
+				final StringBuilder builder = new StringBuilder( kb.getKeyDescription() );
+				builder.append( '=' );
+				append_rest.accept( kb, builder );
+				return builder.toString();
+			} )
 			.toArray( String[]::new )
 		);
 		DKSModConfig.is_kbp_setup = has_kbp_mod;

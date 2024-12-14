@@ -5,7 +5,7 @@ plugins {
 	id 'wtf.gofancy.fancygradle' version '1.1.+'
 }
 
-version = '1.0.0.3'
+version = '1.0.0.5'
 group = 'com.dks'  // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'Default Key Setup'
 
