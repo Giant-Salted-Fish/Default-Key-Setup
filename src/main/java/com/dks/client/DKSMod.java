@@ -37,10 +37,28 @@ public final class DKSMod
 {
 	private static void __saveDefaultKeySetup()
 	{
+		final boolean has_kbp_mod = ModList.get().isLoaded( "key_binding_patch" );
+		final BiConsumer< KeyBinding, StringBuilder > append_value;
+		if ( has_kbp_mod ) {
+			append_value = ( kb, builder ) -> builder.append( kb.saveString() );
+		}
+		else
+		{
+			append_value = ( kb, builder ) -> {
+				builder.append( kb.saveString() );
+				builder.append( ':' );
+				builder.append( kb.getKeyModifier() );
+			};
+		}
 		final Minecraft mc = Minecraft.getInstance();
 		DKSModConfig.DEFAULT_KEY_SETUP.set(
 			Arrays.stream( mc.options.keyMappings )
-			.map( kb -> String.format( "%s=%s", kb.getName(), kb.saveString() ) )
+			.map( kb -> {
+				final StringBuilder builder = new StringBuilder( kb.getName() );
+				builder.append( '=' );
+				append_value.accept( kb, builder );
+				return builder.toString();
+			} )
 			.collect( Collectors.toList() )
 		);
 		DKSModConfig.DEFAULT_KEY_SETUP.save();
@@ -49,47 +67,6 @@ public final class DKSMod
 	private static void __applyDefaultKeySetup()
 	{
 		final boolean has_kbp_mod = ModList.get().isLoaded( "key_binding_patch" );
-		final BiConsumer< KeyBinding, String[] > setup_rest;
-		if ( has_kbp_mod )
-		{
-			setup_rest = ( kb, split ) -> {
-				final ImmutableSet< Input > cmb_keys;
-				final KeyModifier modifier;
-				if ( split.length == 1 )
-				{
-					cmb_keys = ImmutableSet.of();
-					modifier = KeyModifier.NONE;
-				}
-				else
-				{
-					modifier = KeyModifier.valueFromString( split[ 1 ] );
-					if ( split.length > 2 )
-					{
-						cmb_keys = (
-							Arrays.stream( split[ 2 ].split( "\\+" ) )
-							.map( InputMappings::getKey )
-							.collect( ImmutableSet.toImmutableSet() )
-						);
-					}
-					else {
-						cmb_keys = IKeyBindingImpl.toCmbKeySet( modifier );
-					}
-				}
-				
-				KeyBindingAccess._setKeyModifierDefault( kb, modifier );
-				KeyBindingAccess._setDefaultCmbKeys( kb, cmb_keys );
-			};
-		}
-		else
-		{
-			// KBP mod is not installed, so can not use IKeyBindingImpl#toModifier(...).
-			setup_rest = ( kb, split ) -> {
-				final String value = split.length > 1 ? split[ 1 ] : "";
-				final KeyModifier modifier = KeyModifier.valueFromString( value );
-				KeyBindingAccess._setKeyModifierDefault( kb, modifier );
-			};
-		}
-		
 		final Map< String, String > data = (
 			DKSModConfig.DEFAULT_KEY_SETUP.get().stream()
 			.map( s -> {
@@ -109,8 +86,25 @@ public final class DKSMod
 			{
 				final String[] split = value.split( ":" );
 				final Input key = InputMappings.getKey( split[ 0 ] );
+				final KeyModifier modifier = KeyModifier.valueFromString( split[ 1 ] );
 				KeyBindingAccess._setDefaultKey( kb, key );
-				setup_rest.accept( kb, split );
+				KeyBindingAccess._setKeyModifierDefault( kb, modifier );
+				if ( has_kbp_mod )
+				{
+					final ImmutableSet< Input > cmb_keys;
+					if ( split.length > 2 )
+					{
+						cmb_keys = (
+							Arrays.stream( split[ 2 ].split( "\\+" ) )
+							.map( InputMappings::getKey )
+							.collect( ImmutableSet.toImmutableSet() )
+						);
+					}
+					else {
+						cmb_keys = IKeyBindingImpl.toCmbKeySet( modifier );
+					}
+					KeyBindingAccess._setDefaultCmbKeys( kb, cmb_keys );
+				}
 			}
 		}
 	}
