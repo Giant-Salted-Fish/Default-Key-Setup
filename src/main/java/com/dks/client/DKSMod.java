@@ -17,16 +17,21 @@ import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.IExtensionPoint.DisplayTest;
+import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraftforge.fml.config.IConfigEvent;
+import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.config.ModConfig.Type;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
+import net.minecraftforge.fml.javafmlmod.FMLModContainer;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.EnumMap;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
@@ -61,7 +66,6 @@ public final class DKSMod
 			} )
 			.toList()
 		);
-		DKSModConfig.DEFAULT_KEY_SETUP.save();
 	}
 	
 	private static void __applyDefaultKeySetup()
@@ -82,38 +86,35 @@ public final class DKSMod
 		for ( var km : mc.options.keyMappings )
 		{
 			final var value = data.get( km.getName() );
-			if ( value != null )
+			if ( value == null ) {
+				continue;
+			}
+			
+			final var split = value.split( ":" );
+			final var key = InputConstants.getKey( split[ 0 ] );
+			final var modifier = KeyModifier.valueFromString( split[ 1 ] );
+			KeyMappingAccess._setDefaultKey( km, key );
+			KeyMappingAccess._setKeyModifierDefault( km, modifier );
+			if ( has_kbp_mod )
 			{
-				final var split = value.split( ":" );
-				final var key = InputConstants.getKey( split[ 0 ] );
-				final var modifier = KeyModifier.valueFromString( split[ 1 ] );
-				KeyMappingAccess._setDefaultKey( km, key );
-				KeyMappingAccess._setKeyModifierDefault( km, modifier );
-				if ( has_kbp_mod )
+				final ImmutableSet< Key > cmb_keys;
+				if ( split.length > 2 )
 				{
-					final ImmutableSet< Key > cmb_keys;
-					if ( split.length > 2 )
-					{
-						cmb_keys = (
-							Arrays.stream( split[ 2 ].split( "\\+" ) )
-							.map( InputConstants::getKey )
-							.collect( ImmutableSet.toImmutableSet() )
-						);
-					}
-					else {
-						cmb_keys = IKeyMappingImpl.toCmbKeySet( modifier );
-					}
-					KeyMappingAccess._setDefaultCmbKeys( km, cmb_keys );
+					cmb_keys = (
+						Arrays.stream( split[ 2 ].split( "\\+" ) )
+						.map( InputConstants::getKey )
+						.collect( ImmutableSet.toImmutableSet() )
+					);
 				}
+				else {
+					cmb_keys = IKeyMappingImpl.toCmbKeySet( modifier );
+				}
+				KeyMappingAccess._setDefaultCmbKeys( km, cmb_keys );
 			}
 		}
 	}
 	
-	@SubscribeEvent
-	static void onConfigReload( ModConfigEvent.Reloading evt ) {
-		__applyDefaultKeySetup();
-	}
-	
+	private final ModConfig config;
 	public DKSMod()
 	{
 		// Make sure the mod being absent on the other network side does not
@@ -138,7 +139,10 @@ public final class DKSMod
 					if ( result )
 					{
 						__saveDefaultKeySetup();
-						__applyDefaultKeySetup();
+						
+						// I think this is a bug in Forge. Saving the config this way may not trigger the reload event.
+						final var container = ModList.get().getModContainerById( "default_key_setup" ).orElseThrow();
+						container.dispatchConfigEvent( IConfigEvent.reloading( DKSMod.this.config ) );
 					}
 					mc.setScreen( screen );
 				},
@@ -151,21 +155,27 @@ public final class DKSMod
 			@SubscribeEvent
 			void onOpenGui( ScreenEvent.Opening evt )
 			{
+				// This event somehow could be fired during the mod loading phase, which is pointless
+				// to process. So defer the event subscription after the game load complete.
+				final var container = ( FMLModContainer ) ModList.get().getModContainerById( "default_key_setup" ).orElseThrow();
+				container.getEventBus().addListener( ( ModConfigEvent.Reloading e ) -> __applyDefaultKeySetup() );
+				
 				final boolean should_reset_km;
 				if ( DKSModConfig.FORCE_KEY_RESET.get() )
 				{
 					DKSModConfig.FORCE_KEY_RESET.set( false );
-					DKSModConfig.FORCE_KEY_RESET.save();
 					should_reset_km = true;
+					
+					container.dispatchConfigEvent( IConfigEvent.reloading( DKSMod.this.config ) );
 				}
 				else
 				{
 					final var mc = Minecraft.getInstance();
-					final File file = ObfuscationReflectionHelper.getPrivateValue( Options.class, mc.options, "f_92110_");
+					final File file = ObfuscationReflectionHelper.getPrivateValue( Options.class, mc.options, "f_92110_" );
 					should_reset_km = !Objects.requireNonNull( file ).exists();
+					
+					__applyDefaultKeySetup();
 				}
-				
-				__applyDefaultKeySetup();
 				
 				if ( should_reset_km )
 				{
@@ -177,5 +187,10 @@ public final class DKSMod
 				MinecraftForge.EVENT_BUS.unregister( this );
 			}
 		} );
+		
+		final var container = ( FMLModContainer ) load_ctx.getActiveContainer();
+		EnumMap< ModConfig.Type, ModConfig > configs = ObfuscationReflectionHelper.getPrivateValue( ModContainer.class, container, "configs" );
+		assert configs != null;
+		this.config = configs.get( Type.CLIENT );
 	}
 }
